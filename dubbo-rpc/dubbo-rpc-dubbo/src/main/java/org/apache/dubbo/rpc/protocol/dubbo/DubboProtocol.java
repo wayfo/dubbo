@@ -299,7 +299,7 @@ public class DubboProtocol extends AbstractProtocol {
 
             }
         }
-
+        // 启动服务器
         openServer(url);
         optimizeSerialization(url);
 
@@ -328,6 +328,8 @@ public class DubboProtocol extends AbstractProtocol {
     }
 
     private ProtocolServer createServer(URL url) {
+        // 默认开启 server 关闭时发送 READ_ONLY 事件
+        // 默认开启 heartbeat
         url = URLBuilder.from(url)
                 // send readonly event when server closes, it's enabled by default
                 .addParameterIfAbsent(CHANNEL_READONLYEVENT_SENT_KEY, Boolean.TRUE.toString())
@@ -335,12 +337,13 @@ public class DubboProtocol extends AbstractProtocol {
                 .addParameterIfAbsent(HEARTBEAT_KEY, String.valueOf(DEFAULT_HEARTBEAT))
                 .addParameter(CODEC_KEY, DubboCodec.NAME)
                 .build();
+        // 设置编解码器为 `"Dubbo"`
         String str = url.getParameter(SERVER_KEY, DEFAULT_REMOTING_SERVER);
-
+        // 校验 Server 的 Dubbo SPI 拓展是否存在
         if (str != null && str.length() > 0 && !ExtensionLoader.getExtensionLoader(Transporter.class).hasExtension(str)) {
             throw new RpcException("Unsupported server type: " + str + ", url: " + url);
         }
-
+        // 启动服务器
         ExchangeServer server;
         try {
             server = Exchangers.bind(url, requestHandler);

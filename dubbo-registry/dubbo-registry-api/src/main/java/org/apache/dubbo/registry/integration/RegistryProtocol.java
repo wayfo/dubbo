@@ -188,10 +188,13 @@ public class RegistryProtocol implements Protocol {
 
     @Override
     public <T> Exporter<T> export(final Invoker<T> originInvoker) throws RpcException {
+        // 获得注册中心 URL
         URL registryUrl = getRegistryUrl(originInvoker);
+        // 获得服务提供者 URL
         // url to export locally
         URL providerUrl = getProviderUrl(originInvoker);
 
+        // 使用 OverrideListener 对象，订阅配置规则
         // Subscribe the override data
         // FIXME When the provider subscribes, it will affect the scene : a certain JVM exposes the service and call
         //  the same service. Because the subscribed is cached key with the name of the service, it causes the
@@ -201,6 +204,7 @@ public class RegistryProtocol implements Protocol {
         overrideListeners.put(overrideSubscribeUrl, overrideSubscribeListener);
 
         providerUrl = overrideUrlWithConfig(providerUrl, overrideSubscribeListener);
+        // 暴露服务
         //export invoker
         final ExporterChangeableWrapper<T> exporter = doLocalExport(originInvoker, providerUrl);
 
@@ -209,7 +213,9 @@ public class RegistryProtocol implements Protocol {
         final URL registeredProviderUrl = getUrlToRegistry(providerUrl, registryUrl);
 
         // decide if we need to delay publish
+        // 获得注册中心对象
         boolean register = providerUrl.getParameter(REGISTER_KEY, true);
+        // 向注册中心注册服务提供者（自己）
         if (register) {
             register(registryUrl, registeredProviderUrl);
         }
@@ -350,6 +356,8 @@ public class RegistryProtocol implements Protocol {
      * @return
      */
     protected Registry getRegistry(final Invoker<?> originInvoker) {
+        // 根据 URL 的 Protocol 确定扩展名称，从而确定使用的具体扩展实现类
+        // zookeeper://127.0.0.1:2181/org.apache.dubbo... 这里使用的是zookeeper作为注册中心
         URL registryUrl = getRegistryUrl(originInvoker);
         return registryFactory.getRegistry(registryUrl);
     }
