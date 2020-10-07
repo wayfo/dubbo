@@ -460,7 +460,7 @@ public class ServiceConfig<T> extends ServiceConfigBase<T> {
                 exportLocal(url);
             }
             // export to remote if the config is not local (export to local only when config is local)
-            if (!SCOPE_LOCAL.equalsIgnoreCase(scope)) {
+            if (!SCOPE_LOCAL.equalsIgnoreCase(scope)) {//导出到远程
                 if (CollectionUtils.isNotEmpty(registryURLs)) {
                     for (URL registryURL : registryURLs) {
                         //if protocol is only injvm ,not register
@@ -488,7 +488,7 @@ public class ServiceConfig<T> extends ServiceConfigBase<T> {
 
                         Invoker<?> invoker = PROXY_FACTORY.getInvoker(ref, (Class) interfaceClass, registryURL.addParameterAndEncoded(EXPORT_KEY, url.toFullString()));
                         DelegateProviderMetaDataInvoker wrapperInvoker = new DelegateProviderMetaDataInvoker(invoker, this);
-
+                        //暴露服务
                         Exporter<?> exporter = PROTOCOL.export(wrapperInvoker);
                         exporters.add(exporter);
                     }
