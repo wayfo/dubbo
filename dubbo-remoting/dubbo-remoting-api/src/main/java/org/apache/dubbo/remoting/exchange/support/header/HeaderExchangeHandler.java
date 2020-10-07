@@ -75,6 +75,12 @@ public class HeaderExchangeHandler implements ChannelHandlerDelegate {
         }
     }
 
+    /**
+     * 需要返回值的请求req-res.twoway
+     * @param channel
+     * @param req
+     * @throws RemotingException
+     */
     void handleRequest(final ExchangeChannel channel, Request req) throws RemotingException {
         Response res = new Response(req.getId(), req.getVersion());
         if (req.isBroken()) {
@@ -97,9 +103,11 @@ public class HeaderExchangeHandler implements ChannelHandlerDelegate {
         // find handler by message class.
         Object msg = req.getData();
         try {
+            // 调用DubboProtocol的reply方法
             CompletionStage<Object> future = handler.reply(channel, msg);
             future.whenComplete((appResult, t) -> {
                 try {
+                    // 使用异步回调方式（避免当前线程被阻塞），等执行完毕并拿到结果后再把结果写回消费端
                     if (t == null) {
                         res.setStatus(Response.OK);
                         res.setResult(appResult);
@@ -164,20 +172,23 @@ public class HeaderExchangeHandler implements ChannelHandlerDelegate {
 
     @Override
     public void received(Channel channel, Object message) throws RemotingException {
+        // 请求
         final ExchangeChannel exchangeChannel = HeaderExchangeChannel.getOrAddChannel(channel);
         if (message instanceof Request) {
+            // 处理请求
             // handle request.
             Request request = (Request) message;
             if (request.isEvent()) {
                 handlerEvent(channel, request);
             } else {
+                //需要返回值的请求req-res.twoway
                 if (request.isTwoWay()) {
                     handleRequest(exchangeChannel, request);
-                } else {
+                } else {//不需要返回值的请求req,oneway
                     handler.received(exchangeChannel, request.getData());
                 }
             }
-        } else if (message instanceof Response) {
+        } else if (message instanceof Response) {//响应
             handleResponse(channel, (Response) message);
         } else if (message instanceof String) {
             if (isClientSide(channel)) {
