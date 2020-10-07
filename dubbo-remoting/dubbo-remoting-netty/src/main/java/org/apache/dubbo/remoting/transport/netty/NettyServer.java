@@ -65,6 +65,11 @@ public class NettyServer extends AbstractServer implements RemotingServer {
         super(ExecutorUtil.setThreadName(url, SERVER_THREAD_POOL_NAME), ChannelHandlers.wrap(handler, url));
     }
 
+    /**
+     * @Description  开启netty服务，详情见 《深入剖析Duboo核心技术内幕》3.1节
+     * @Author yangsj
+     * @Date 2020/10/7 12:51 下午
+     **/
     @Override
     protected void doOpen() throws Throwable {
         NettyHelper.setNettyLoggerFactory();
