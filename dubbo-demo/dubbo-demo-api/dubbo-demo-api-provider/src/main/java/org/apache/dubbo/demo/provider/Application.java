@@ -26,11 +26,12 @@ import java.util.concurrent.CountDownLatch;
 
 public class Application {
     public static void main(String[] args) throws Exception {
-        if (isClassic(args)) {
+        startWithExport();
+        /*if (isClassic(args)) {
             startWithExport();
         } else {
             startWithBootstrap();
-        }
+        }*/
     }
 
     private static boolean isClassic(String[] args) {

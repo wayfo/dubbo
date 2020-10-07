@@ -19,9 +19,9 @@ package org.apache.dubbo.demo;
 import java.util.concurrent.CompletableFuture;
 
 public interface DemoService {
-
+    // 同步调用
     String sayHello(String name);
-
+    // 异步调用
     default CompletableFuture<String> sayHelloAsync(String name) {
         return CompletableFuture.completedFuture(sayHello(name));
     }
