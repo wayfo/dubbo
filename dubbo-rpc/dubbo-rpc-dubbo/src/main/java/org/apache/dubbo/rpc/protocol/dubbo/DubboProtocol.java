@@ -427,8 +427,10 @@ public class DubboProtocol extends AbstractProtocol {
     public <T> Invoker<T> protocolBindingRefer(Class<T> serviceType, URL url) throws RpcException {
         optimizeSerialization(url);
 
+        // getClients（）方法创建服务消费端的NettyClient对象（默认netty）
         // create rpc invoker.
         DubboInvoker<T> invoker = new DubboInvoker<T>(serviceType, url, getClients(url), invokers);
+        // 维护了所有服务者的invoker列表
         invokers.add(invoker);
 
         return invoker;
@@ -436,7 +438,7 @@ public class DubboProtocol extends AbstractProtocol {
 
     private ExchangeClient[] getClients(URL url) {
         // whether to share connection
-
+        // 不同服务是否共享连接
         boolean useShareConnect = false;
 
         int connections = url.getParameter(CONNECTIONS_KEY, 0);
@@ -454,6 +456,7 @@ public class DubboProtocol extends AbstractProtocol {
             shareClients = getSharedClient(url, connections);
         }
 
+        //初始化nettyclient
         ExchangeClient[] clients = new ExchangeClient[connections];
         for (int i = 0; i < clients.length; i++) {
             if (useShareConnect) {
@@ -611,11 +614,13 @@ public class DubboProtocol extends AbstractProtocol {
 
         ExchangeClient client;
         try {
+            // 惰性连接
             // connection should be lazy
             if (url.getParameter(LAZY_CONNECT_KEY, false)) {
                 client = new LazyConnectExchangeClient(url, requestHandler);
 
-            } else {
+            } else { //及时连接
+                // 创建 NettyClinet客户端
                 client = Exchangers.connect(url, requestHandler);
             }
 
