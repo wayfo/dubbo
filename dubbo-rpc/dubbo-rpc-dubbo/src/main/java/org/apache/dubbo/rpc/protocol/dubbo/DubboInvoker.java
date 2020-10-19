@@ -81,6 +81,7 @@ public class DubboInvoker<T> extends AbstractInvoker<T> {
 
     @Override
     protected Result doInvoke(final Invocation invocation) throws Throwable {
+        // 设置附加属性
         RpcInvocation inv = (RpcInvocation) invocation;
         final String methodName = RpcUtils.getMethodName(invocation);
         inv.setAttachment(PATH_KEY, getUrl().getPath());
@@ -94,13 +95,16 @@ public class DubboInvoker<T> extends AbstractInvoker<T> {
         }
         // 执行远程调用
         try {
+            // 是否为One way
             boolean isOneway = RpcUtils.isOneway(getUrl(), invocation);
+            // 超时等待时间
             int timeout = calculateTimeout(invocation, methodName);
+            // 不需要响应的请求
             if (isOneway) {
                 boolean isSent = getUrl().getMethodParameter(methodName, Constants.SENT_KEY, false);
                 currentClient.send(inv, isSent);
                 return AsyncRpcResult.newDefaultAsyncResult(invocation);
-            } else {
+            } else {// 需要响应的请求
                 ExecutorService executor = getCallbackExecutor(getUrl(), inv);
                 CompletableFuture<AppResponse> appResponseFuture =
                         currentClient.request(inv, timeout, executor).thenApply(obj -> (AppResponse) obj);
