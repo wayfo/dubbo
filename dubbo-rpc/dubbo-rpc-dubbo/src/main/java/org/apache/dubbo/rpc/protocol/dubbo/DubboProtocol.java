@@ -307,7 +307,7 @@ public class DubboProtocol extends AbstractProtocol {
         // export service.
         String key = serviceKey(url);
         DubboExporter<T> exporter = new DubboExporter<T>(invoker, key, exporterMap);
-        // 将代理类添加到DubboExporter的exporterMap中
+        // 将代理类添加到exporterMap中
         exporterMap.put(key, exporter);
 
         //export an stub service for dispatching event
