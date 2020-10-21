@@ -81,18 +81,20 @@ public class MockClusterInvoker<T> implements ClusterInvoker<T> {
     @Override
     public Result invoke(Invocation invocation) throws RpcException {
         Result result = null;
-
+        // 查看URL里是否由URL字段
         String value = getUrl().getMethodParameter(invocation.getMethodName(), MOCK_KEY, Boolean.FALSE.toString()).trim();
+        // 如果没有，或者值设置成"false"，说明没有设置降级策略
         if (value.length() == 0 || "false".equalsIgnoreCase(value)) {
             //no mock
+            // 没有mock正常发起远程调用
             result = this.invoker.invoke(invocation);
-        } else if (value.startsWith("force")) {
+        } else if (value.startsWith("force")) {// 设置了"force:return"降级策越
             if (logger.isWarnEnabled()) {
                 logger.warn("force-mock: " + invocation.getMethodName() + " force-mock enabled , url : " + getUrl());
             }
             //force:direct mock
             result = doMockInvoke(invocation, null);
-        } else {
+        } else {// 设置了fail mock
             //fail-mock
             try {
                 result = this.invoker.invoke(invocation);
