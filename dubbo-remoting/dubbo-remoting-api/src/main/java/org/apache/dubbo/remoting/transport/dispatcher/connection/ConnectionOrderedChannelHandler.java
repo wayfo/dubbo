@@ -56,7 +56,7 @@ public class ConnectionOrderedChannelHandler extends WrappedChannelHandler {
         );  // FIXME There's no place to release connectionExecutor!
         queuewarninglimit = url.getParameter(CONNECT_QUEUE_WARNING_SIZE, DEFAULT_CONNECT_QUEUE_WARNING_SIZE);
     }
-
+    // 连接完成事件和断连事件在单线程上有序执行
     @Override
     public void connected(Channel channel) throws RemotingException {
         try {
@@ -76,7 +76,7 @@ public class ConnectionOrderedChannelHandler extends WrappedChannelHandler {
             throw new ExecutionException("disconnected event", channel, getClass() + " error when process disconnected event .", t);
         }
     }
-
+    // 其他事件交给业务线程处理
     @Override
     public void received(Channel channel, Object message) throws RemotingException {
         ExecutorService executor = getPreferredExecutorService(message);

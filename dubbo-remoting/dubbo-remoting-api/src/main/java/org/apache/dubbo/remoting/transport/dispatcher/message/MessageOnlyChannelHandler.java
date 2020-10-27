@@ -35,8 +35,10 @@ public class MessageOnlyChannelHandler extends WrappedChannelHandler {
         super(handler, url);
     }
 
+    // 请求响应消息在业务线程池上执行
     @Override
     public void received(Channel channel, Object message) throws RemotingException {
+        // 业务线程池
         ExecutorService executor = getPreferredExecutorService(message);
         try {
             executor.execute(new ChannelEventRunnable(channel, handler, ChannelState.RECEIVED, message));

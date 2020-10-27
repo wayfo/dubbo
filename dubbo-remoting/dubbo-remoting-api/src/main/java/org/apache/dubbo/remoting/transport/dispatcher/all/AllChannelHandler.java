@@ -34,7 +34,7 @@ public class AllChannelHandler extends WrappedChannelHandler {
     public AllChannelHandler(ChannelHandler handler, URL url) {
         super(handler, url);
     }
-
+    // 连接完成事件在业务线程池上执行
     @Override
     public void connected(Channel channel) throws RemotingException {
         ExecutorService executor = getExecutorService();
@@ -44,7 +44,7 @@ public class AllChannelHandler extends WrappedChannelHandler {
             throw new ExecutionException("connect event", channel, getClass() + " error when process connected event .", t);
         }
     }
-
+    // 断开连接事件交给业务线程池执行
     @Override
     public void disconnected(Channel channel) throws RemotingException {
         ExecutorService executor = getExecutorService();
@@ -54,7 +54,7 @@ public class AllChannelHandler extends WrappedChannelHandler {
             throw new ExecutionException("disconnect event", channel, getClass() + " error when process disconnected event .", t);
         }
     }
-
+    // 请求响应时间，交给业务线程池处理
     @Override
     public void received(Channel channel, Object message) throws RemotingException {
         ExecutorService executor = getPreferredExecutorService(message);
@@ -68,7 +68,7 @@ public class AllChannelHandler extends WrappedChannelHandler {
             throw new ExecutionException(message, channel, getClass() + " error when process received event .", t);
         }
     }
-
+    // 异常事件，交割业务线程池处理
     @Override
     public void caught(Channel channel, Throwable exception) throws RemotingException {
         ExecutorService executor = getExecutorService();

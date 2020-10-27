@@ -34,9 +34,12 @@ public class DirectChannelHandler extends WrappedChannelHandler {
         super(handler, url);
     }
 
+    // 如果业务线程池是 ThreadlessExecutor，则处理请求响应时间
+    // 否则，全部事件都交给IO线程处理
     @Override
     public void received(Channel channel, Object message) throws RemotingException {
         ExecutorService executor = getPreferredExecutorService(message);
+        // ThreadlessExecutor ??
         if (executor instanceof ThreadlessExecutor) {
             try {
                 executor.execute(new ChannelEventRunnable(channel, handler, ChannelState.RECEIVED, message));

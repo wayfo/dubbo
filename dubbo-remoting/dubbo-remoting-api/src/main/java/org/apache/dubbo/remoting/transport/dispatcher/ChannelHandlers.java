@@ -41,7 +41,7 @@ public class ChannelHandlers {
     static void setTestingChannelHandlers(ChannelHandlers instance) {
         INSTANCE = instance;
     }
-
+    // 确定线程模型
     protected ChannelHandler wrapInternal(ChannelHandler handler, URL url) {
         return new MultiMessageHandler(new HeartbeatHandler(ExtensionLoader.getExtensionLoader(Dispatcher.class)
                 .getAdaptiveExtension().dispatch(handler, url)));
